@@ -3,8 +3,8 @@ clc; clear all; close all;
 Nr = 60; % Number of range bins (height)
 Nc = 100; % Number of chirps (width)
 A = 1.0; % Amplitude
-center_range = 30; % Center in range
-center_chirp = 80; % Center in chirps
+center_range = 50; % Center in range
+center_chirp = 90; % Center in chirps
 B = 200e6; % Bandwidth in Hz..........covenient unit
 c = 3e8; % Speed of light (m/s)
 range_resolution = c / (2 * B); % Range resolution
@@ -12,7 +12,7 @@ disp(['Range Resolution (Range Bin Size): ', num2str(range_resolution), ' meters
 
 % --- Vehicle Target Parameters ---
 % Adjust these parameters to reflect a typical vehicle size
-spread_range_vehicle = 8;   % Larger spread in range (height) for a vehicle
+spread_range_vehicle = 7;   % Larger spread in range (height) for a vehicle
 spread_chirp_vehicle = 15;  % Larger spread in chirps (width) for a vehicle
 
 % --- Noise Parameters --
@@ -53,24 +53,33 @@ end
 
 % --- Plotting ---
 figure('Position', [100, 100, 800, 400]);
+
+% Subplot 1 - Original Range-Time Map
 subplot(1, 2, 1);
-imagesc(1:Nc, 1:Nr, range_time_map, [-0.2, A]); % Chirps on x, Range Bins on y
-colormap(flipud(brewermap(256, 'RdBu'))); % Use 'jet' if brewermap is unavailable
+imagesc(1:Nc, 1:Nr, range_time_map); % Chirps on x, Range Bins on y
+colormap(parula); % Apply 'parula' colormap for colorful visualization
 colorbar;
-caxis([-0.25, 1.0]); % Adjust color limits to match the scale
+%caxis([-0.25, 1.0]); % Adjust color limits to match the scale
 xlabel('Chirps');
 ylabel('Range Bin');
-title('Vehicle Target'); % Updated title
-set(gca, 'YDir', 'normal');
+title(' tactical vehicle');
+ax1 = gca; % Get the handle to the current axes
+set(ax1, 'YDir', 'normal');  % ✅ Fix: Make Y-axis go from 0 to 60 (bottom to top)
+set(ax1, 'YLim', [0, Nr]);
+set(ax1, 'YTick', 0:10:Nr);
+set(ax1, 'XLim', [0, Nc]);
+set(ax1, 'XTick', 0:20:Nc);
 hold on;
 if ~isempty(stats)
-    plot(detected_center_chirp, detected_center_range, 'w+', 'MarkerSize', 10, 'LineWidth', 2);
+    plot(detected_center_chirp, detected_center_range, 'MarkerSize', 10, 'LineWidth', 2);
 end
 hold off;
+
+% Subplot 2 - Detected Tank (Colorful)
 subplot(1, 2, 2);
-imagesc(1:Nc, 1:Nr, detected_vehicle_cleaned); % Chirps on x, Range Bins on y
-colormap(gray(2));
+imagesc(1:Nc, 1:Nr, detected_tank_cleaned); % Convert logical matrix to double for color mapping
+colormap(parula); % ✅ Apply 'parula' colormap for colors
+colorbar;
 xlabel('Chirps');
 ylabel('Range Bin');
-title('Detected Vehicle'); % Updated title
-set(gca, 'YDir', 'normal');
+title(' tactical vehicle');
